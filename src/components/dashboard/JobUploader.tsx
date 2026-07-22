@@ -42,13 +42,27 @@ export default function JobUploader() {
         setJobData(data.parsed);
 
         // Save Job Description file name
-        localStorage.setItem("jobFileName", file.name);
+        const save = await fetch("/api/jobs", {
+          method: "POST",
+          headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+        title: file.name.replace(".pdf", ""),
+        company: "Recruiter Company",
+        description: file.name,
+        skills: data.parsed.skills,
+      }),
+    });
 
-        // Save Job Skills
-        localStorage.setItem(
-          "jobSkills",
-          JSON.stringify(data.parsed.skills)
-        );
+const job = await save.json();
+
+if (job.success) {
+  alert("✅ Job uploaded successfully");
+  window.location.reload();
+} else {
+  alert("Failed to save job");
+}
 
         alert("✅ Job Description Saved");
       } else {

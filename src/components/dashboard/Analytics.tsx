@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ResponsiveContainer,
   BarChart,
@@ -18,17 +18,19 @@ interface Candidate {
 }
 
 export default function Analytics() {
-  const [candidates] = useState<Candidate[]>(() => {
-  if (typeof window === "undefined") return [];
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
 
-  try {
-    return JSON.parse(localStorage.getItem("candidates") || "[]");
-  } catch {
-    return [];
-  }
-});
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(
+        localStorage.getItem("candidates") || "[]"
+      );
 
-  
+      setCandidates(stored);
+    } catch {
+      setCandidates([]);
+    }
+  }, []);
 
   const chartData = candidates.map((candidate) => ({
     name: candidate.name || "Unknown",
@@ -75,40 +77,28 @@ export default function Analytics() {
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
 
         <div className="bg-slate-900 rounded-2xl p-6 border border-cyan-500">
-          <h3 className="text-gray-400">
-            Total Candidates
-          </h3>
-
+          <h3 className="text-gray-400">Total Candidates</h3>
           <p className="text-3xl md:text-4xl font-bold text-cyan-400 mt-3">
             {total}
           </p>
         </div>
 
         <div className="bg-slate-900 rounded-2xl p-6 border border-green-500">
-          <h3 className="text-gray-400">
-            Average ATS
-          </h3>
-
+          <h3 className="text-gray-400">Average ATS</h3>
           <p className="text-3xl md:text-4xl font-bold text-green-400 mt-3">
             {average}%
           </p>
         </div>
 
         <div className="bg-slate-900 rounded-2xl p-6 border border-yellow-500">
-          <h3 className="text-gray-400">
-            Highest ATS
-          </h3>
-
+          <h3 className="text-gray-400">Highest ATS</h3>
           <p className="text-3xl md:text-4xl font-bold text-yellow-400 mt-3">
             {highest}%
           </p>
         </div>
 
         <div className="bg-slate-900 rounded-2xl p-6 border border-red-500">
-          <h3 className="text-gray-400">
-            Lowest ATS
-          </h3>
-
+          <h3 className="text-gray-400">Lowest ATS</h3>
           <p className="text-3xl md:text-4xl font-bold text-red-400 mt-3">
             {lowest}%
           </p>
@@ -126,7 +116,6 @@ export default function Analytics() {
         <div className="h-[300px] md:h-[450px] w-full">
 
           <ResponsiveContainer width="100%" height="100%">
-
             <BarChart data={chartData}>
 
               <XAxis
@@ -146,7 +135,6 @@ export default function Analytics() {
               />
 
             </BarChart>
-
           </ResponsiveContainer>
 
         </div>
@@ -154,7 +142,6 @@ export default function Analytics() {
       </div>
 
       {/* Empty State */}
-
       {total === 0 && (
         <div className="bg-slate-900 border border-slate-700 rounded-2xl p-10 text-center">
 

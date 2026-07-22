@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  Upload,
   Briefcase,
   Users,
   BarChart3,
@@ -17,11 +16,6 @@ const menuItems = [
     title: "Dashboard",
     href: "/recruiter/dashboard",
     icon: LayoutDashboard,
-  },
-  {
-    title: "Upload Resume",
-    href: "/recruiter/upload",
-    icon: Upload,
   },
   {
     title: "Job Description",

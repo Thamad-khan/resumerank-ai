@@ -3,6 +3,13 @@ enum Role {
   RECRUITER
 }
 
+enum ApplicationStatus {
+  PENDING
+  SHORTLISTED
+  REJECTED
+  HIRED
+}
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,44 +21,44 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(cuid())
+  id String @id @default(cuid())
 
   name          String?
-  email         String?  @unique
+  email         String?   @unique
   emailVerified DateTime?
   image         String?
 
   // Email / Password Login
-  password      String?
+  password String?
 
   // Recruiter Company
-  company       String?
-  role Role @default(STUDENT)
+  company String?
+  role    Role    @default(STUDENT)
 
-  accounts       Account[]
-  sessions       Session[]
-  jobs           Job[]
-  candidates     Candidate[]
+  accounts   Account[]
+  sessions   Session[]
+  jobs       Job[]
+  candidates Candidate[]
 
-  createdAt      DateTime @default(now())
+  createdAt DateTime @default(now())
 }
 
 model Account {
-  id                String @id @default(cuid())
+  id String @id @default(cuid())
 
-  userId            String
+  userId String
 
   type              String
   provider          String
   providerAccountId String
 
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
+  refresh_token String?
+  access_token  String?
+  expires_at    Int?
+  token_type    String?
+  scope         String?
+  id_token      String?
+  session_state String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -59,7 +66,7 @@ model Account {
 }
 
 model Session {
-  id           String   @id @default(cuid())
+  id String @id @default(cuid())
 
   sessionToken String   @unique
   userId       String
@@ -70,57 +77,71 @@ model Session {
 
 model VerificationToken {
   identifier String
-  token      String @unique
+  token      String   @unique
   expires    DateTime
 
   @@unique([identifier, token])
 }
 
 model Job {
-  id          String   @id @default(cuid())
+  id String @id @default(cuid())
 
   title       String
   company     String
   description String
 
-  skills      String[]
+  skills String[]
 
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 
-  userId      String
-  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  candidates  Candidate[]
+  applications Application[]
 }
 
 model Candidate {
-  id              String @id @default(cuid())
+  id String @id @default(cuid())
 
-  name            String
-  email           String @unique
-  phone           String
+  name String
+  email String @unique
+  phone String
 
-  education       String
-  experience      String
+  education String
+  experience String
 
-  skills          String[]
+  skills String[]
 
-  atsScore        Int
+  createdAt DateTime @default(now())
 
-  matchedSkills   String[]
-  missingSkills   String[]
+  applications Application[]
 
-  strengths       String[]
-  weaknesses      String[]
-  suggestions     String[]
+  userId String?
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+model Application {
+  id String @id @default(cuid())
 
-  recommendation  String
+  status ApplicationStatus @default(PENDING)
 
-  createdAt       DateTime @default(now())
+  atsScore Int
 
-  jobId           String?
-  job             Job? @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  matchedSkills String[]
+  missingSkills String[]
 
-  userId          String?
-  user            User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  strengths   String[]
+  weaknesses  String[]
+  suggestions String[]
+
+  recommendation String
+
+  resumeText String
+
+  createdAt DateTime @default(now())
+
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  jobId String
+  job   Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
 }

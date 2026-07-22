@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect } from "react";
 import { UploadCloud } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
 interface ResumeData {
   name: string;
@@ -33,6 +34,8 @@ export default function ResumeUploader() {
   const [resumeData, setResumeData] = useState<ResumeData | null>(null);
   const [ats, setATS] = useState<ATSData | null>(null);
   const [analysis, setAnalysis] = useState<AnalysisData | null>(null);
+  const searchParams = useSearchParams();
+const jobId = searchParams.get("jobId");
 
   const [jobFileName, setJobFileName] = useState("");
   const [jobSkills, setJobSkills] = useState<string[]>([]);
@@ -96,6 +99,10 @@ alert("Selected File: " + selectedFile.name);
       "jobSkills",
       JSON.stringify(savedJobSkills)
     );
+
+    if (jobId) {
+  formData.append("jobId", jobId);
+}
 
     try {
       alert("Uploading...");

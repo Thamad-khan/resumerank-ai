@@ -40,6 +40,10 @@ export async function POST(request: Request) {
       (formData.get("jobSkills") as string) || "[]"
     );
 
+    const jobId = formData.get("jobId") as string | null;
+
+      console.log("Job ID:", jobId);
+
     console.log("Job Skills:", jobSkills);
 
     // Convert PDF
@@ -95,51 +99,59 @@ console.log(analysis);
 
     // Save Candidate
     console.log("Saving Candidate...");
+    console.log("ATS Score:", ats.score);
+console.log("Matched Skills:", ats.matched);
+console.log("Missing Skills:", ats.missing);
+console.log("Strengths:", analysis.strengths);
+console.log("Recommendation:", analysis.recommendation);
+
 
     const candidate = await prisma.candidate.upsert({
       where: {
-        email: parsed.email,
-      },
+         email: parsed.email,
+        },
       update: {
-        name: parsed.name,
-        phone: parsed.phone,
-        education: parsed.education,
-        experience: parsed.experience,
-
-        skills: parsed.skills,
-
-        atsScore: ats.score,
-        matchedSkills: ats.matched,
-        missingSkills: ats.missing,
-
-        strengths: analysis.strengths,
-        weaknesses: analysis.weaknesses,
-        suggestions: analysis.suggestions,
-
-        recommendation: analysis.recommendation,
-      },
-      create: {
-        name: parsed.name,
-        email: parsed.email,
-        phone: parsed.phone,
-        education: parsed.education,
-        experience: parsed.experience,
-
-        skills: parsed.skills,
-
-        atsScore: ats.score,
-        matchedSkills: ats.matched,
-        missingSkills: ats.missing,
-
-        strengths: analysis.strengths,
-        weaknesses: analysis.weaknesses,
-        suggestions: analysis.suggestions,
-
-        recommendation: analysis.recommendation,
-      },
-    });
+          name: parsed.name,
+          phone: parsed.phone,
+          education: parsed.education,
+          experience: parsed.experience,
+          skills: parsed.skills,
+        },
+    create: {
+      name: parsed.name,
+      email: parsed.email,
+      phone: parsed.phone,
+      education: parsed.education,
+      experience: parsed.experience,
+      skills: parsed.skills,
+    },
+  });
+    
 
     console.log("✅ Candidate Saved:", candidate.id);
+
+    if (jobId) {
+  await prisma.application.create({
+    data: {
+      candidateId: candidate.id,
+      jobId,
+
+      atsScore: ats.score,
+      matchedSkills: ats.matched,
+      missingSkills: ats.missing,
+
+      strengths: analysis.strengths,
+      weaknesses: analysis.weaknesses,
+      suggestions: analysis.suggestions,
+
+      recommendation: analysis.recommendation,
+
+      resumeText: text,
+    },
+  });
+
+  console.log("✅ Application Created");
+}
 
     console.log("========== Upload Finished ==========");
 
@@ -151,17 +163,22 @@ console.log(analysis);
       analysis,
       text,
     });
-  } catch (error) {
-    console.error("❌ Upload Error:", error);
+  } 
+   
+  catch (error) {
+  console.error("❌ Upload Error:", error);
 
-    return NextResponse.json(
-      {
-        success: false,
-        error: "Upload failed",
-      },
-      {
-        status: 500,
-      }
-    );
+  return NextResponse.json(
+    {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Unknown error",
+    },
+    {
+      status: 500,
+    }
+  );
   }
 }

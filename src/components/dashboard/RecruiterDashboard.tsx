@@ -123,10 +123,10 @@ const [candidates, setCandidates] = useState<Candidate[]>([]);
           </Link>
 
           <Link
-            href="/recruiter/upload"
+            href="/recruiter/jobs"
             className="bg-slate-800 hover:bg-slate-700 rounded-xl p-4 text-center"
           >
-            Upload Resume
+            📄 Upload Job Description
           </Link>
 
           <Link
@@ -161,19 +161,28 @@ const [candidates, setCandidates] = useState<Candidate[]>([]);
           </p>
         ) : (
           jobs.slice(0, 5).map((job) => (
-            <div
-              key={job.id}
-              className="border-b border-slate-800 py-4"
-            >
-              <h3 className="font-semibold text-lg">
-                {job.title}
-              </h3>
+  <div
+    key={job.id}
+    className="border-b border-slate-800 py-4 flex justify-between items-center"
+  >
+    <div>
+      <h3 className="font-semibold text-lg">
+        {job.title}
+      </h3>
 
-              <p className="text-gray-400">
-                {job.company}
-              </p>
-            </div>
-          ))
+      <p className="text-gray-400">
+        {job.company}
+      </p>
+    </div>
+
+    <Link
+      href={`/recruiter/jobs/${job.id}/applicants`}
+      className="bg-cyan-500 hover:bg-cyan-600 text-black px-4 py-2 rounded-lg font-semibold"
+    >
+      View Applicants
+    </Link>
+  </div>
+))
         )}
 
       </div>

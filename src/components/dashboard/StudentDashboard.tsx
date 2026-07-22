@@ -7,6 +7,7 @@ import {
   TrendingUp,
   Briefcase,
 } from "lucide-react";
+import AvailableJobs from "./AvailableJobs";
 
 export default function StudentDashboard() {
   return (
@@ -88,6 +89,8 @@ export default function StudentDashboard() {
 
       </div>
 
+      <AvailableJobs />
+
       {/* Tips */}
       <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6">
 
@@ -106,5 +109,6 @@ export default function StudentDashboard() {
       </div>
 
     </div>
+    
   );
 }
