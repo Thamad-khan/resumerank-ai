@@ -5,7 +5,7 @@ const steps = [
     icon: Upload,
     title: "Upload Resume",
     description:
-      "Upload a candidate's resume in PDF format with a single click.",
+      "Upload a candidate&apos;s resume in PDF format with a single click.",
   },
   {
     icon: BrainCircuit,

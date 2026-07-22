@@ -10,7 +10,7 @@ export default function UserMenu() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
 
-  const role = (session?.user as any)?.role;
+  const role = session?.user?.role;
 
   return (
     <div className="relative">

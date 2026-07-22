@@ -3,13 +3,24 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
+interface Job {
+  id: string;
+  title: string;
+  company: string;
+  skills: string[];
+  createdAt: string;
+}
+
 export default function JobList() {
-  const [jobs, setJobs] = useState<any[]>([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
 
   useEffect(() => {
     async function loadJobs() {
       const res = await fetch("/api/jobs");
-      const data = await res.json();
+      const data: {
+        success: boolean;
+        jobs: Job[];
+      } = await res.json();
 
       if (data.success) {
         setJobs(data.jobs);

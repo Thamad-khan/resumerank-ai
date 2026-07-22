@@ -45,7 +45,7 @@ export default function LoginPage() {
         {/* Google Login */}
         <button
           onClick={async () => {
-            const res = await signIn("google", {
+            await signIn("google", {
               callbackUrl: "/api/auth/callback-handler",
             });
           }}
@@ -102,7 +102,7 @@ export default function LoginPage() {
         <div className="mt-6 border-t border-slate-700 pt-5">
 
           <p className="mb-3 text-center text-sm text-gray-400">
-            Don't have a recruiter account?
+            Don&#39;t have a recruiter account?
           </p>
 
           <Link

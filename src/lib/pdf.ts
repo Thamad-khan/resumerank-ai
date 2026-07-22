@@ -18,7 +18,7 @@ export async function extractText(file: File) {
     const content = await page.getTextContent();
 
     text += content.items
-      .map((item: any) => item.str)
+      .map((item) => ("str" in item ? item.str : ""))
       .join(" ");
 
     text += "\n";

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ResponsiveContainer,
   BarChart,
@@ -18,15 +18,17 @@ interface Candidate {
 }
 
 export default function Analytics() {
-  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [candidates] = useState<Candidate[]>(() => {
+  if (typeof window === "undefined") return [];
 
-  useEffect(() => {
-    const stored = JSON.parse(
-      localStorage.getItem("candidates") || "[]"
-    );
+  try {
+    return JSON.parse(localStorage.getItem("candidates") || "[]");
+  } catch {
+    return [];
+  }
+});
 
-    setCandidates(stored);
-  }, []);
+  
 
   const chartData = candidates.map((candidate) => ({
     name: candidate.name || "Unknown",

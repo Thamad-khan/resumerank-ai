@@ -3,11 +3,15 @@
 import { useRef, useState } from "react";
 import { UploadCloud } from "lucide-react";
 
+interface JobData {
+  skills: string[];
+}
+
 export default function JobUploader() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [fileName, setFileName] = useState("");
-  const [jobData, setJobData] = useState<any>(null);
+  const [jobData, setJobData] = useState<JobData | null>(null);
 
   const handleChange = async (
     e: React.ChangeEvent<HTMLInputElement>
@@ -27,7 +31,10 @@ export default function JobUploader() {
         body: formData,
       });
 
-      const data = await response.json();
+      const data: {
+        success: boolean;
+        parsed: JobData;
+      } = await response.json();
 
       console.log(data);
 

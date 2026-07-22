@@ -9,9 +9,21 @@ import {
   FileText,
 } from "lucide-react";
 
+interface Job {
+  id: string;
+  title: string;
+  company: string;
+}
+
+interface Candidate {
+  ats: {
+    score: number;
+  };
+}
+
 export default function RecruiterDashboard() {
-  const [jobs, setJobs] = useState<any[]>([]);
-  const [candidates, setCandidates] = useState<any[]>([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
+const [candidates, setCandidates] = useState<Candidate[]>([]);
 
   useEffect(() => {
     async function loadData() {
@@ -23,7 +35,7 @@ export default function RecruiterDashboard() {
           setJobs(data.jobs);
         }
 
-        const stored = JSON.parse(
+        const stored: Candidate[] = JSON.parse(
           localStorage.getItem("candidates") || "[]"
         );
 
@@ -40,7 +52,7 @@ export default function RecruiterDashboard() {
     candidates.length > 0
       ? Math.round(
           candidates.reduce(
-            (sum: number, c: any) => sum + c.ats.score,
+            (sum: number, c: Candidate) => sum + c.ats.score,
             0
           ) / candidates.length
         )

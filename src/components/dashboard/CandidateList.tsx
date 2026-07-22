@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 type Candidate = {
   id: string;
@@ -17,24 +17,26 @@ export default function CandidateList() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
-  useEffect(() => {
-    loadCandidates();
-  }, []);
+  
 
-  async function loadCandidates() {
-    try {
-      const res = await fetch("/api/candidates");
-      const data = await res.json();
+  const loadCandidates = useCallback(async () => {
+  try {
+    const res = await fetch("/api/candidates");
+    const data = await res.json();
 
-      if (data.success) {
-        setCandidates(data.candidates);
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
+    if (data.success) {
+      setCandidates(data.candidates);
     }
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setLoading(false);
   }
+}, []);
+
+useEffect(() => {
+  loadCandidates();
+}, [loadCandidates]);
 
   async function deleteCandidate(id: string) {
     if (!confirm("Delete this candidate?")) return;

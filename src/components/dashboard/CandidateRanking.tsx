@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import DownloadReport from "@/components/dashboard/DownloadReport";
 
 interface Candidate {
@@ -30,11 +30,7 @@ export default function CandidateRanking() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
 
-  useEffect(() => {
-    loadCandidates();
-  }, []);
-
-  const loadCandidates = () => {
+  const loadCandidates = useCallback(() => {
     const stored: Candidate[] = JSON.parse(
       localStorage.getItem("candidates") || "[]"
     );
@@ -42,7 +38,11 @@ export default function CandidateRanking() {
     stored.sort((a, b) => b.ats.score - a.ats.score);
 
     setCandidates(stored);
-  };
+  }, []);
+
+  useEffect(() => {
+    loadCandidates();
+  }, [loadCandidates]);
 
   const medal = (index: number) => {
     if (index === 0) return "🥇";
@@ -56,10 +56,7 @@ export default function CandidateRanking() {
       (candidate) => candidate.email !== email
     );
 
-    localStorage.setItem(
-      "candidates",
-      JSON.stringify(updated)
-    );
+    localStorage.setItem("candidates", JSON.stringify(updated));
 
     setCandidates(updated);
   };
@@ -71,40 +68,41 @@ export default function CandidateRanking() {
     setCandidates([]);
   };
 
-  const filteredCandidates = candidates.filter((candidate) => {
-    const query = search.toLowerCase();
+  const filteredCandidates = useMemo(() => {
+    return candidates.filter((candidate) => {
+      const query = search.toLowerCase();
 
-    const matchesSearch =
-      candidate.name.toLowerCase().includes(query) ||
-      candidate.email.toLowerCase().includes(query) ||
-      candidate.skills.some((skill) =>
-        skill.toLowerCase().includes(query)
-      );
+      const matchesSearch =
+        candidate.name.toLowerCase().includes(query) ||
+        candidate.email.toLowerCase().includes(query) ||
+        candidate.skills.some((skill) =>
+          skill.toLowerCase().includes(query)
+        );
 
-    let matchesFilter = true;
+      let matchesFilter = true;
 
-    if (filter === "Excellent")
-      matchesFilter = candidate.ats.score >= 80;
+      if (filter === "Excellent")
+        matchesFilter = candidate.ats.score >= 80;
 
-    if (filter === "Good")
-      matchesFilter =
-        candidate.ats.score >= 60 &&
-        candidate.ats.score < 80;
+      if (filter === "Good")
+        matchesFilter =
+          candidate.ats.score >= 60 &&
+          candidate.ats.score < 80;
 
-    if (filter === "Average")
-      matchesFilter =
-        candidate.ats.score >= 40 &&
-        candidate.ats.score < 60;
+      if (filter === "Average")
+        matchesFilter =
+          candidate.ats.score >= 40 &&
+          candidate.ats.score < 60;
 
-    if (filter === "Poor")
-      matchesFilter = candidate.ats.score < 40;
+      if (filter === "Poor")
+        matchesFilter = candidate.ats.score < 40;
 
-    return matchesSearch && matchesFilter;
-  });
+      return matchesSearch && matchesFilter;
+    });
+  }, [candidates, search, filter]);
 
   if (candidates.length === 0) {
     return (
-
       <div className="text-center text-gray-400 mt-20 text-xl">
         No Candidates Uploaded Yet
       </div>
@@ -113,9 +111,7 @@ export default function CandidateRanking() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 space-y-6">
-
       <div className="flex flex-col lg:flex-row gap-4">
-
         <input
           type="text"
           placeholder="🔍 Search by name, email or skill..."
@@ -142,7 +138,6 @@ export default function CandidateRanking() {
         >
           🗑 Clear All
         </button>
-
       </div>
 
       {filteredCandidates.length === 0 ? (
@@ -152,14 +147,11 @@ export default function CandidateRanking() {
       ) : (
         filteredCandidates.map((candidate, index) => (
           <div
-            key={index}
+            key={candidate.email}
             className="rounded-2xl border border-cyan-500 bg-slate-900 p-4 md:p-6 shadow-lg"
           >
-
             <div className="flex flex-col md:flex-row md:justify-between gap-6">
-
               <div>
-
                 <h2 className="text-xl md:text-2xl font-bold text-cyan-400 break-words">
                   {medal(index)} {candidate.name}
                 </h2>
@@ -173,19 +165,15 @@ export default function CandidateRanking() {
                 </p>
 
                 <p className="mt-3">
-                  <strong>🎓 Education:</strong>{" "}
-                  {candidate.education}
+                  <strong>🎓 Education:</strong> {candidate.education}
                 </p>
 
                 <p>
-                  <strong>💼 Experience:</strong>{" "}
-                  {candidate.experience}
+                  <strong>💼 Experience:</strong> {candidate.experience}
                 </p>
-
               </div>
 
               <div className="md:text-right">
-
                 <p className="text-4xl md:text-5xl font-bold text-green-400">
                   {candidate.ats.score}%
                 </p>
@@ -193,13 +181,10 @@ export default function CandidateRanking() {
                 <p className="text-gray-400">
                   ATS Score
                 </p>
-
               </div>
-
             </div>
 
             <div className="mt-6">
-
               <h3 className="font-bold text-cyan-400 mb-3">
                 Skills
               </h3>
@@ -214,11 +199,9 @@ export default function CandidateRanking() {
                   </span>
                 ))}
               </div>
-
             </div>
 
-                        <div className="flex flex-col md:flex-row gap-4 mt-6">
-
+            <div className="flex flex-col md:flex-row gap-4 mt-6">
               <DownloadReport candidate={candidate} />
 
               <button
@@ -227,13 +210,10 @@ export default function CandidateRanking() {
               >
                 🗑 Delete
               </button>
-
             </div>
-
           </div>
         ))
       )}
-
     </div>
   );
 }

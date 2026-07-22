@@ -9,11 +9,11 @@ export default async function RecruiterProfilePage() {
     redirect("/login");
   }
 
-  if ((session.user as any).role !== "RECRUITER") {
+  if (session.user.role !== "RECRUITER") {
     redirect("/dashboard");
   }
 
-  const user = session.user as any;
+  const user = session.user;
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -44,11 +44,7 @@ export default async function RecruiterProfilePage() {
               Role : <span className="font-semibold">RECRUITER</span>
             </p>
 
-            {user.company && (
-              <p className="text-green-400 mt-2 text-lg">
-                Company : {user.company}
-              </p>
-            )}
+            
 
           </div>
 

@@ -3,29 +3,54 @@
 import { useRef, useState, useEffect } from "react";
 import { UploadCloud } from "lucide-react";
 
+interface ResumeData {
+  name: string;
+  email: string;
+  phone: string;
+  education: string;
+  experience: string;
+  skills: string[];
+}
+
+interface ATSData {
+  score: number;
+  matched: string[];
+  missing: string[];
+}
+
+interface AnalysisData {
+  strengths: string[];
+  weaknesses: string[];
+  suggestions: string[];
+  recommendation: string;
+}
+
 export default function ResumeUploader() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [fileName, setFileName] = useState("");
   const [resumeText, setResumeText] = useState("");
-  const [resumeData, setResumeData] = useState<any>(null);
-  const [ats, setATS] = useState<any>(null);
-  const [analysis, setAnalysis] = useState<any>(null);
+  const [resumeData, setResumeData] = useState<ResumeData | null>(null);
+  const [ats, setATS] = useState<ATSData | null>(null);
+  const [analysis, setAnalysis] = useState<AnalysisData | null>(null);
 
   const [jobFileName, setJobFileName] = useState("");
   const [jobSkills, setJobSkills] = useState<string[]>([]);
 
   useEffect(() => {
+  const loadJobData = () => {
     const file = localStorage.getItem("jobFileName");
 
-    const skills = JSON.parse(
+    const skills: string[] = JSON.parse(
       localStorage.getItem("jobSkills") || "[]"
     );
 
-    if (file) setJobFileName(file);
-
+    setJobFileName(file ?? "");
     setJobSkills(skills);
-  }, []);
+  };
+
+  loadJobData();
+}, []);
 
   const clearJobDescription = () => {
     if (
@@ -73,7 +98,13 @@ export default function ResumeUploader() {
         body: formData,
       });
 
-      const data = await response.json();
+      const data: {
+  success: boolean;
+  text: string;
+  parsed: ResumeData;
+  ats: ATSData;
+  analysis: AnalysisData;
+} = await response.json();
 
       console.log(data);
 
@@ -84,19 +115,31 @@ export default function ResumeUploader() {
         setAnalysis(data.analysis);
 
         const existing = JSON.parse(
-          localStorage.getItem("candidates") || "[]"
-        );
+  localStorage.getItem("candidates") || "[]"
+);
 
-        existing.push({
-          ...data.parsed,
-          ats: data.ats,
-          analysis: data.analysis,
-        });
+const candidate = {
+  ...data.parsed,
+  ats: data.ats,
+  analysis: data.analysis,
+};
 
-        localStorage.setItem(
-          "candidates",
-          JSON.stringify(existing)
-        );
+const existingIndex = existing.findIndex(
+  (c: { email: string }) => c.email === candidate.email
+);
+
+if (existingIndex !== -1) {
+  // Candidate already exists → update it
+  existing[existingIndex] = candidate;
+} else {
+  // New candidate → add it
+  existing.push(candidate);
+}
+
+localStorage.setItem(
+  "candidates",
+  JSON.stringify(existing)
+);
 
         alert("✅ Resume uploaded successfully!");
       } else {

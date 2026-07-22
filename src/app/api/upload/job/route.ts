@@ -5,7 +5,6 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
@@ -22,55 +21,61 @@ export async function POST(request: Request) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
+    // Extract text from PDF
     const result = await extractTextFromPDF(buffer);
 
-    if (!result.success) {
+if (!result.success) {
+  return NextResponse.json(
+    { error: "Failed to read Job Description" },
+    { status: 500 }
+  );
+}
+
+const text = result.text;
+
+// Parse Job Description
+const parsed = parseJobDescription(text);
+
+    // Get logged-in user
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.email) {
       return NextResponse.json(
-        { error: "Failed to read Job Description" },
-        { status: 500 }
+        { error: "Unauthorized" },
+        { status: 401 }
       );
     }
 
-    const parsed = parseJobDescription(result.text);
+    const user = await prisma.user.findUnique({
+      where: {
+        email: session.user.email,
+      },
+    });
 
-    const session = await getServerSession(authOptions);
+    if (!user) {
+      return NextResponse.json(
+        { error: "User not found" },
+        { status: 404 }
+      );
+    }
 
-if (!session?.user?.email) {
-  return NextResponse.json(
-    { error: "Unauthorized" },
-    { status: 401 }
-  );
-}
-
-const user = await prisma.user.findUnique({
-  where: {
-    email: session.user.email,
-  },
-});
-
-if (!user) {
-  return NextResponse.json(
-    { error: "User not found" },
-    { status: 404 }
-  );
-}
-
-const job = await prisma.job.create({
-  data: {
-    title: parsed.title || "Untitled Job",
-    company: parsed.company || "Unknown Company",
-    description: result.text,
-    skills: parsed.skills,
-    userId: user.id,
-  },
-});
+    // Save Job
+    const job = await prisma.job.create({
+      data: {
+        title: parsed.title || "Untitled Job",
+        company: parsed.company || "Unknown Company",
+        description: text,
+        skills: parsed.skills,
+        userId: user.id,
+      },
+    });
 
     return NextResponse.json({
-  success: true,
-  parsed,
-  job,
-});
-
+      success: true,
+      parsed,
+      job,
+      text,
+    });
   } catch (error) {
     console.error(error);
 

@@ -2,8 +2,26 @@
 
 import { jsPDF } from "jspdf";
 
+interface Candidate {
+  name: string;
+  email: string;
+  phone: string;
+  education: string;
+  experience: string;
+  skills: string[];
+  ats: {
+    score: number;
+  };
+  analysis?: {
+    strengths: string[];
+    weaknesses: string[];
+    suggestions: string[];
+    recommendation: string;
+  };
+}
+
 interface Props {
-  candidate: any;
+  candidate: Candidate;
 }
 
 export default function DownloadReport({ candidate }: Props) {
@@ -23,14 +41,13 @@ export default function DownloadReport({ candidate }: Props) {
 
     y += 15;
 
-    // Candidate Info
+    // Candidate Information
     doc.setFontSize(14);
     doc.text("Candidate Information", 20, y);
 
     y += 10;
 
     doc.setFontSize(12);
-
     doc.text(`Name: ${candidate.name}`, 20, y);
     y += 8;
 
@@ -47,7 +64,7 @@ export default function DownloadReport({ candidate }: Props) {
 
     y += 15;
 
-    // ATS
+    // ATS Score
     doc.setFontSize(14);
     doc.text("ATS Score", 20, y);
 
@@ -66,7 +83,7 @@ export default function DownloadReport({ candidate }: Props) {
 
     doc.setFontSize(12);
 
-    candidate.skills.forEach((skill: string) => {
+    candidate.skills.forEach((skill) => {
       doc.text(`• ${skill}`, 25, y);
       y += 7;
     });
@@ -85,7 +102,7 @@ export default function DownloadReport({ candidate }: Props) {
       doc.text("Strengths:", 20, y);
       y += 7;
 
-      candidate.analysis.strengths?.forEach((item: string) => {
+      candidate.analysis.strengths.forEach((item) => {
         doc.text(`• ${item}`, 25, y);
         y += 7;
       });
@@ -95,7 +112,7 @@ export default function DownloadReport({ candidate }: Props) {
       doc.text("Weaknesses:", 20, y);
       y += 7;
 
-      candidate.analysis.weaknesses?.forEach((item: string) => {
+      candidate.analysis.weaknesses.forEach((item) => {
         doc.text(`• ${item}`, 25, y);
         y += 7;
       });
@@ -105,7 +122,7 @@ export default function DownloadReport({ candidate }: Props) {
       doc.text("Suggestions:", 20, y);
       y += 7;
 
-      candidate.analysis.suggestions?.forEach((item: string) => {
+      candidate.analysis.suggestions.forEach((item) => {
         doc.text(`• ${item}`, 25, y);
         y += 7;
       });

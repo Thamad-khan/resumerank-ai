@@ -9,7 +9,7 @@ export async function GET() {
     return NextResponse.redirect(new URL("/login", process.env.NEXTAUTH_URL));
   }
 
-  const role = (session.user as any).role;
+  const role = session.user.role;
 
   if (role === "RECRUITER") {
     return NextResponse.redirect(

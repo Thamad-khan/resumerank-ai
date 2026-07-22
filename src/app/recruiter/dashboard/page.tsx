@@ -11,7 +11,7 @@ export default async function RecruiterDashboardPage() {
     redirect("/login");
   }
 
-  if ((session.user as any).role !== "RECRUITER") {
+  if (session.user.role !== "RECRUITER") {
     redirect("/dashboard");
   }
 

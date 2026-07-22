@@ -13,8 +13,13 @@ export async function POST(request: Request) {
 
     if (!file) {
       return NextResponse.json(
-        { success: false, error: "No file uploaded" },
-        { status: 400 }
+        {
+          success: false,
+          error: "No file uploaded",
+        },
+        {
+          status: 400,
+        }
       );
     }
 
@@ -25,31 +30,41 @@ export async function POST(request: Request) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
+    // Extract text from PDF
     const result = await extractTextFromPDF(buffer);
 
-    if (!result.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Failed to extract PDF",
-        },
-        { status: 500 }
-      );
+if (!result.success) {
+  return NextResponse.json(
+    {
+      success: false,
+      error: "Failed to extract PDF",
+    },
+    {
+      status: 500,
     }
+  );
+}
 
-    const parsed = parseResume(result.text);
+const text = result.text;
 
-    const ats = calculateATS(
-      parsed.skills,
-      jobSkills
-    );
+// Parse Resume
+const parsed = parseResume(text);
 
-    const analysis = await analyzeResume(
-      result.text,
-      jobSkills
-    );
+// Calculate ATS
+const ats = calculateATS(parsed.skills, jobSkills);
 
-    // Save Candidate to PostgreSQL
+// AI Analysis
+const analysis = await analyzeResume(
+  text,
+  jobSkills
+);
+    console.log("Resume Skills:", parsed.skills);
+    console.log("Job Skills:", jobSkills);
+
+    // AI Analysis
+    
+
+    // Save Candidate
     const candidate = await prisma.candidate.upsert({
       where: {
         email: parsed.email,
@@ -70,8 +85,7 @@ export async function POST(request: Request) {
         weaknesses: analysis.weaknesses,
         suggestions: analysis.suggestions,
 
-        recommendation:
-          analysis.recommendation,
+        recommendation: analysis.recommendation,
       },
       create: {
         name: parsed.name,
@@ -90,27 +104,19 @@ export async function POST(request: Request) {
         weaknesses: analysis.weaknesses,
         suggestions: analysis.suggestions,
 
-        recommendation:
-          analysis.recommendation,
+        recommendation: analysis.recommendation,
       },
     });
 
     return NextResponse.json({
       success: true,
-
       candidate,
-
       parsed,
-
       ats,
-
       analysis,
-
-      text: result.text,
+      text,
     });
-
   } catch (error) {
-
     console.error(error);
 
     return NextResponse.json(
