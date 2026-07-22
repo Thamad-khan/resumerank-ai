@@ -64,7 +64,7 @@ export default function StudentDashboard() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 
           <Link
-            href="/upload"
+            href="/dashboard/upload"
             className="bg-cyan-500 hover:bg-cyan-600 transition text-black font-semibold rounded-xl p-5 text-center"
           >
             📄 Upload Resume
