@@ -75,7 +75,12 @@ export default function ResumeUploader() {
   ) => {
     const selectedFile = e.target.files?.[0];
 
-    if (!selectedFile) return;
+if (!selectedFile) {
+  alert("No file selected");
+  return;
+}
+
+alert("Selected File: " + selectedFile.name);
 
     setFileName(selectedFile.name);
 
@@ -93,10 +98,21 @@ export default function ResumeUploader() {
     );
 
     try {
+      alert("Uploading...")
       const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
+  method: "POST",
+  body: formData,
+  cache: "no-store",
+  
+});
+
+if (!response.ok) {
+  const text = await response.text();
+  console.error(text);
+  throw new Error(text);
+}
+
+
 
       const data: {
   success: boolean;
@@ -146,9 +162,14 @@ localStorage.setItem(
         alert("❌ Upload failed!");
       }
     } catch (error) {
-      console.error(error);
-      alert("❌ Something went wrong!");
-    }
+  console.error("Upload Error:", error);
+
+  if (error instanceof Error) {
+    alert(error.message);
+  } else {
+    alert("Unknown error");
+  }
+}
   };
 
   return (
