@@ -98,29 +98,25 @@ alert("Selected File: " + selectedFile.name);
     );
 
     try {
-      alert("Uploading...")
-      const response = await fetch("/api/upload", {
+      alert("Uploading...");
+
+const response = await fetch("/api/upload", {
   method: "POST",
   body: formData,
-  cache: "no-store",
-  
 });
 
+console.log("Status:", response.status);
+
+const data = await response.json();
+
+console.log("Server Response:", data);
+
 if (!response.ok) {
-  const text = await response.text();
-  console.error(text);
-  throw new Error(text);
+  alert(data.error || "Upload failed");
+  return;
 }
 
 
-
-      const data: {
-  success: boolean;
-  text: string;
-  parsed: ResumeData;
-  ats: ATSData;
-  analysis: AnalysisData;
-} = await response.json();
 
       console.log(data);
 

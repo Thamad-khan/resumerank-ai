@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { extractTextFromPDF } from "@/lib/pdfParser";
 import { parseResume } from "@/lib/resumeParser";
 import { calculateATS } from "@/lib/atsScorer";
-import { analyzeResume } from "@/lib/gemini";
+import { analyzeResume } from "@/lib/aiAnalysis";
 
 export async function POST(request: Request) {
   try {
@@ -82,17 +82,16 @@ export async function POST(request: Request) {
     console.log(ats);
 
     // AI Analysis
-    let analysis = {
-      strengths: [],
-      weaknesses: [],
-      suggestions: [],
-      recommendation: "AI analysis unavailable",
-    };
+    
 
-    analysis = await analyzeResume(text, jobSkills);
+    const analysis = analyzeResume(
+  ats.score,
+  ats.matched,
+  ats.missing
+);
 
-    console.log("AI Analysis:");
-    console.log(analysis);
+console.log("AI Analysis:");
+console.log(analysis);
 
     // Save Candidate
     console.log("Saving Candidate...");
