@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { extractTextFromPDF } from "@/lib/pdfParser";
 import { parseResume } from "@/lib/resumeParser";
 import { calculateATS } from "@/lib/atsScorer";
-import { analyzeResume } from "@/lib/ollama";
+import { analyzeResume } from "@/lib/gemini";
 
 export async function POST(request: Request) {
   try {
