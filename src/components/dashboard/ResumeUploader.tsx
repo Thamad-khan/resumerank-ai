@@ -100,10 +100,13 @@ alert("Selected File: " + selectedFile.name);
     try {
       alert("Uploading...");
 
-const response = await fetch("/api/upload", {
-  method: "POST",
-  body: formData,
-});
+const response = await fetch(
+  `${window.location.origin}/api/upload`,
+  {
+    method: "POST",
+    body: formData,
+  }
+);
 
 console.log("Status:", response.status);
 
@@ -160,11 +163,13 @@ localStorage.setItem(
     } catch (error) {
   console.error("Upload Error:", error);
 
-  if (error instanceof Error) {
-    alert(error.message);
-  } else {
-    alert("Unknown error");
-  }
+alert(
+  JSON.stringify({
+    message: error instanceof Error ? error.message : "Unknown",
+    online: navigator.onLine,
+    userAgent: navigator.userAgent,
+  })
+);
 }
   };
 
