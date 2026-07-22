@@ -54,18 +54,16 @@ export async function POST(request: Request) {
     console.log("PDF Extraction Success:", result.success);
 
     if (!result.success) {
-      console.log("❌ PDF Extraction Failed");
-
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Failed to extract PDF",
-        },
-        {
-          status: 500,
-        }
-      );
+  return NextResponse.json(
+    {
+      success: false,
+      error: result.error,
+    },
+    {
+      status: 500,
     }
+  );
+}
 
     const text = result.text;
 
