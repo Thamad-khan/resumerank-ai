@@ -54,10 +54,14 @@ const parsed = parseResume(text);
 const ats = calculateATS(parsed.skills, jobSkills);
 
 // AI Analysis
-const analysis = await analyzeResume(
-  text,
-  jobSkills
-);
+let analysis = {
+  strengths: [],
+  weaknesses: [],
+  suggestions: [],
+  recommendation: "AI analysis unavailable",
+};
+
+analysis = await analyzeResume(text, jobSkills);
     console.log("Resume Skills:", parsed.skills);
     console.log("Job Skills:", jobSkills);
 
