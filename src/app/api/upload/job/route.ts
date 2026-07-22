@@ -9,7 +9,14 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData();
 
+    console.log("FormData Keys:", [...formData.keys()]);
+
     const file = formData.get("job") as File;
+
+    console.log("File:", file);
+    console.log("File Name:", file?.name);
+    console.log("File Size:", file?.size);
+    console.log("File Type:", file?.type);
 
     if (!file) {
       return NextResponse.json(

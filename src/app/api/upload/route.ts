@@ -7,15 +7,27 @@ import { analyzeResume } from "@/lib/ollama";
 
 export async function POST(request: Request) {
   try {
+    console.log("========== Resume Upload Started ==========");
+
     const formData = await request.formData();
 
-    const file = formData.get("resume") as File;
+    console.log("FormData Keys:", [...formData.keys()]);
 
+    const file = formData.get("resume") as File | null;
+
+    console.log("File:", file);
+    console.log("File Name:", file?.name);
+    console.log("File Size:", file?.size);
+    console.log("File Type:", file?.type);
+
+    // Check if file exists
     if (!file) {
+      console.log("❌ Resume file not received.");
+
       return NextResponse.json(
         {
           success: false,
-          error: "No file uploaded",
+          error: "No resume uploaded",
         },
         {
           status: 400,
@@ -23,52 +35,70 @@ export async function POST(request: Request) {
       );
     }
 
+    // Job Skills
     const jobSkills = JSON.parse(
       (formData.get("jobSkills") as string) || "[]"
     );
 
+    console.log("Job Skills:", jobSkills);
+
+    // Convert PDF
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Extract text from PDF
+    console.log("PDF Buffer Size:", buffer.length);
+
+    // Extract text
     const result = await extractTextFromPDF(buffer);
 
-if (!result.success) {
-  return NextResponse.json(
-    {
-      success: false,
-      error: "Failed to extract PDF",
-    },
-    {
-      status: 500,
+    console.log("PDF Extraction Success:", result.success);
+
+    if (!result.success) {
+      console.log("❌ PDF Extraction Failed");
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Failed to extract PDF",
+        },
+        {
+          status: 500,
+        }
+      );
     }
-  );
-}
 
-const text = result.text;
+    const text = result.text;
 
-// Parse Resume
-const parsed = parseResume(text);
+    console.log("Extracted Text Length:", text.length);
 
-// Calculate ATS
-const ats = calculateATS(parsed.skills, jobSkills);
+    // Parse Resume
+    const parsed = parseResume(text);
 
-// AI Analysis
-let analysis = {
-  strengths: [],
-  weaknesses: [],
-  suggestions: [],
-  recommendation: "AI analysis unavailable",
-};
+    console.log("Parsed Resume:");
+    console.log(parsed);
 
-analysis = await analyzeResume(text, jobSkills);
-    console.log("Resume Skills:", parsed.skills);
-    console.log("Job Skills:", jobSkills);
+    // ATS Score
+    const ats = calculateATS(parsed.skills, jobSkills);
+
+    console.log("ATS Result:");
+    console.log(ats);
 
     // AI Analysis
-    
+    let analysis = {
+      strengths: [],
+      weaknesses: [],
+      suggestions: [],
+      recommendation: "AI analysis unavailable",
+    };
+
+    analysis = await analyzeResume(text, jobSkills);
+
+    console.log("AI Analysis:");
+    console.log(analysis);
 
     // Save Candidate
+    console.log("Saving Candidate...");
+
     const candidate = await prisma.candidate.upsert({
       where: {
         email: parsed.email,
@@ -112,6 +142,10 @@ analysis = await analyzeResume(text, jobSkills);
       },
     });
 
+    console.log("✅ Candidate Saved:", candidate.id);
+
+    console.log("========== Upload Finished ==========");
+
     return NextResponse.json({
       success: true,
       candidate,
@@ -121,7 +155,7 @@ analysis = await analyzeResume(text, jobSkills);
       text,
     });
   } catch (error) {
-    console.error(error);
+    console.error("❌ Upload Error:", error);
 
     return NextResponse.json(
       {
