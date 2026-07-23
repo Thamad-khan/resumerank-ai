@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 interface Job {
@@ -13,6 +14,37 @@ interface Job {
 
 export default function JobList() {
   const [jobs, setJobs] = useState<Job[]>([]);
+  const router = useRouter();
+
+  const deleteJob = async (jobId: string) => {
+  const confirmed = window.confirm(
+    "Are you sure you want to delete this job?"
+  );
+
+  if (!confirmed) return;
+
+  try {
+    const res = await fetch(`/api/jobs/${jobId}`, {
+      method: "DELETE",
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      // Remove the deleted job from UI immediately
+      setJobs((prev) => prev.filter((job) => job.id !== jobId));
+
+      alert("Job deleted successfully!");
+
+      router.refresh();
+    } else {
+      alert(data.error || "Failed to delete job");
+    }
+  } catch (error) {
+    console.error(error);
+    alert("Something went wrong");
+  }
+};
 
   useEffect(() => {
     async function loadJobs() {
@@ -117,8 +149,8 @@ export default function JobList() {
               </Link>
 
               <button
-                className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white font-semibold px-5 py-3 rounded-xl transition"
-                onClick={() => alert("Delete Job feature coming soon")}
+                  className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white font-semibold px-5 py-3 rounded-xl transition"
+                  onClick={() => deleteJob(job.id)}
               >
                 🗑 Delete Job
               </button>

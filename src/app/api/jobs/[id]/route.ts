@@ -8,6 +8,14 @@ export async function DELETE(
   try {
     const { id } = await params;
 
+    // Delete applications first
+    await prisma.application.deleteMany({
+      where: {
+        jobId: id,
+      },
+    });
+
+    // Delete job
     await prisma.job.delete({
       where: {
         id,
@@ -18,12 +26,15 @@ export async function DELETE(
       success: true,
     });
   } catch (error) {
-    console.error(error);
+    console.error("DELETE JOB ERROR:", error);
 
     return NextResponse.json(
       {
         success: false,
-        error: "Failed to delete job",
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to delete job",
       },
       {
         status: 500,
