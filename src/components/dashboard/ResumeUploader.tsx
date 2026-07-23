@@ -97,14 +97,21 @@ alert("Selected File: " + selectedFile.name);
 
     formData.append("resume", selectedFile);
 
-    const savedJobSkills = JSON.parse(
-      localStorage.getItem("jobSkills") || "[]"
-    );
+    let skills = jobSkills;
 
-    formData.append(
-      "jobSkills",
-      JSON.stringify(savedJobSkills)
-    );
+if (jobId) {
+  const res = await fetch(`/api/jobs/${jobId}`);
+  const data = await res.json();
+
+  if (data.success) {
+    skills = data.job.skills;
+  }
+}
+
+formData.append(
+  "jobSkills",
+  JSON.stringify(skills)
+);
 
     if (jobId) {
   formData.append("jobId", jobId);
