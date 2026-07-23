@@ -120,7 +120,7 @@ model Candidate {
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 }
 model Application {
-  id             String    @id @default(cuid())
+  id             String   @id @default(cuid())
   candidateId    String
   jobId          String
   atsScore       Int
@@ -130,8 +130,8 @@ model Application {
   weaknesses     String[]
   recommendation String
   resumeText     String
-  status         String    @default("PENDING")
-  createdAt      DateTime  @default(now())
+  status         String   @default("PENDING")
+  createdAt      DateTime @default(now())
 
   candidate Candidate @relation(fields: [candidateId], references: [id])
   job       Job       @relation(fields: [jobId], references: [id])
