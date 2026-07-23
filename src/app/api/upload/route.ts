@@ -142,7 +142,6 @@ console.log("Recommendation:", analysis.recommendation);
 
       strengths: analysis.strengths,
       weaknesses: analysis.weaknesses,
-      suggestions: analysis.suggestions,
 
       recommendation: analysis.recommendation,
 
