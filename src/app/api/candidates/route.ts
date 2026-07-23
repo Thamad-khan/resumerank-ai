@@ -5,7 +5,7 @@ export async function GET() {
   try {
     const candidates = await prisma.candidate.findMany({
       orderBy: {
-        atsScore: "desc",
+        createdAt: "desc",
       },
     });
 
